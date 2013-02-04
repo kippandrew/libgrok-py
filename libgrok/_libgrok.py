@@ -1,6 +1,10 @@
+import sys
 import ctypes as CTYPES
+from ctypes.util import find_library
 
-_libgrok_so = CTYPES.cdll.LoadLibrary('libgrok.dylib')
+_libgrok_lib_name = find_library('grok')
+
+_libgrok_so = CTYPES.cdll.LoadLibrary(_libgrok_lib_name)
 
 GROK_OK = 0
 
