@@ -17,7 +17,8 @@ _Install Grok_
 
     brew install grok
 
-_Install Libgrok-Py_
+_Install libgrok-py_
+
     python test/testlibgrok.py
     python setup.py install
 
