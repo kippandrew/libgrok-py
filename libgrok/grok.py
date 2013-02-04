@@ -31,6 +31,7 @@ class GrokError(Exception):
 class GrokMatch(object):
     def __init__(self):
         self._grok_match = _libgrok._grok_match()
+        self._grok_match_ptr = CTYPES.pointer(self._grok_match)
         self._captures = None 
 
     @property
@@ -54,29 +55,31 @@ class GrokMatch(object):
         return self._captures
 
     def walk(self):
-        _libgrok._grok_match_walk_init(self._grok_match)
+        _libgrok._grok_match_walk_init(self._grok_match_ptr)
+        # Create Buffers
         name = CTYPES.create_string_buffer( _fixed_buffer_size)
         name_ptr = CTYPES.c_char_p(CTYPES.addressof(name))
         name_len = CTYPES.c_int(0)
         data = CTYPES.create_string_buffer( _fixed_buffer_size)
         data_ptr = CTYPES.c_char_p(CTYPES.addressof(data))
         data_len = CTYPES.c_int(0)
-        while _libgrok._grok_match_walk_next(self._grok_match,
+        while _libgrok._grok_match_walk_next(self._grok_match_ptr,
                                                 CTYPES.byref(name_ptr),
                                                 CTYPES.byref(name_len),
                                                 CTYPES.byref(data_ptr),
                                                 CTYPES.byref(data_len)) == _libgrok.GROK_OK:
-            yield name_ptr.value[:name_len.value], data_ptr.value[:data_len.value]
-        _libgrok._grok_match_walk_end(self._grok_match)
+            yield CTYPES.string_at(name_ptr, name_len.value), CTYPES.string_at(data_ptr, data_len.value)
+        _libgrok._grok_match_walk_end(self._grok_match_ptr)
 
     def __getitem__(self, k):
+        # Create Buffer
         substring = CTYPES.create_string_buffer( _fixed_buffer_size)
         substring_ptr  = CTYPES.c_char_p(CTYPES.addressof(substring))
         substring_len = CTYPES.c_int(0)
-        ret = _libgrok._grok_match_get_named_substring(self._grok_match, k, CTYPES.byref(substring_ptr), CTYPES.byref(substring_len))
+        ret = _libgrok._grok_match_get_named_substring(self._grok_match_ptr, k, CTYPES.byref(substring_ptr), CTYPES.byref(substring_len))
         if ret != _libgrok.GROK_OK:
             return None 
-        return substring_ptr.value[:substring_len.value]
+        return CTYPES.string_at(substring_ptr, substring_len.value) 
 
 class Grok(object):
 
@@ -102,7 +105,7 @@ class Grok(object):
             raise GrokError(err=ret)
 
     def execute(self, text, match=None):
-        grok_match_p = None if match is None else CTYPES.pointer(match._grok_match)
+        grok_match_p = None if match is None else match._grok_match_ptr
         ret = _libgrok._grok_exec(self._grok, text, grok_match_p) 
         return ret == _libgrok.GROK_OK
 
