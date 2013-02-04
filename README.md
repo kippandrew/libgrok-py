@@ -2,22 +2,20 @@ Python wrapper for semicomplete's Grok library.
 
 About
 -----
-Grok allows you to easily parse logs and other files and turns the unstructured
-log and event data into structured data.
+Grok allows you to easily parse logs and other files and turns the unstructured log and event data into structured data.
 
 Installing
 ----------
 
-You will need libgrok installed in other to use libgrok-py. On MacOSX this is available via Homebrew:
+You will need libgrok installed in other to use libgrok-py. On MacOSX, Grok is available via Homebrew:
 
-Install Grok Dependencies
+_Install Grok Dependencies_
+
     brew install tokyo-cabinet pcre libevent
 
-Install Grok
+_Install Grok_
+
     brew install grok
-
-You can also compile from source.
-
 
 Usage
 -----
@@ -29,3 +27,5 @@ Usage
     >>> match = grok("http://www.example.com/test/")
     >>> match.captures.items()
     [('USERNAME', ''), ('HOSTNAME', 'www.example.com'), ('URIPATH', '/test/'), ('IPORHOST', 'www.example.com'), ('POSINT:port', ''), ('URIPROTO', 'http'), ('IP', ''), ('URIHOST', 'www.example.com'), ('URIPATHPARAM', '/test/'), ('URI:foo', 'http://www.example.com/test/'), ('URIPARAM', ''), ('USER', '')]
+    >>> match["foo"]
+    'http://www.example.com/test/'
